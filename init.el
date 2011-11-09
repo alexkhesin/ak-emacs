@@ -39,8 +39,10 @@
 ; TODO(alexk) on Mac full cua-mode maps copy/paste to C-v/p, whereas by default
 ; (on emacs 24) copy/paste is M-v/p, which is great.  Need to figure
 ; out if the full cua-mode is still needed on Linux.  Also see
-; http://xahlee.org/emacs/emacs_make_modern.html
 (if ak-mac-os-x
+    ; this is mostly needed for rectangle support?
+    ; and perhaps delete-selection-mode, but that can be turned on separately
+    ; with (delete-selection-mode 1)
     (cua-selection-mode t)
   (cua-mode t))
 
@@ -225,6 +227,7 @@ point."
 ; the moment in that it does not cycle through completion candidates
 ; on multiple applications (TAB key presses)
 ;      (hippie-expand arg)
+; see also http://www.emacswiki.org/emacs/TabCompletion and auto-complete mode
     (indent-according-to-mode)))
 
 (setq hippie-expand-try-functions-list
