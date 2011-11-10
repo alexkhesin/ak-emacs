@@ -16,12 +16,12 @@
 
 ; Load ELPA
 (if (require 'package nil t)
-    (progn 
+    (progn
       ;; Emacs 24+ includes ELPA, but requires some extra setup
       ;; to use the (better) tromey repo
       (setq package-archives
-	    (cons '("tromey" . "http://tromey.com/elpa/")
-		  package-archives))
+            (cons '("tromey" . "http://tromey.com/elpa/")
+                  package-archives))
       (package-initialize))
   (install-elpa))
 
