@@ -8,7 +8,6 @@
 
 (ak-load-source-controlled-library "package-installer.el")
 (ak-load-source-controlled-library "ecb-cedit.el")
-(ak-load-source-controlled-library "autosave.el")
 
 (defconst ak-mac-os-x (string-match "apple-darwin" system-configuration))
 (defconst ak-linux (string-match "linux-gnu" system-configuration))
@@ -18,10 +17,25 @@
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)  ; don't replace spaces with tabs
 
-; --------------- turn off silly things
+; --------------- turn silly things off
 
 (fset 'yes-or-no-p 'y-or-n-p)        ; no "yes" / "no" prompts
 (setq inhibit-startup-message t)
+
+; --------------- autosave
+
+; Put autosave files (ie #foo#) in one place, instead scattered of all over the
+; file system.  Don't use /tmp as it gets wiped on restarts on many systems.
+; Don't use NFS (~/) on corp workstations to keep saves fast.
+(defconst durable-tmp-dir
+  (let ((dir (concat "/usr/local/google/home/" (user-login-name) "/tmp/")))
+    (if (file-exists-p dir) (concat dir "emacs/")
+      (concat user-emacs-directory "tmp/"))))
+(make-directory durable-tmp-dir t)
+
+; from www.emacswiki.org/emacs/AutoSave
+(setq backup-directory-alist         `((".*" . ,durable-tmp-dir)))
+(setq auto-save-file-name-transforms `((".*"   ,durable-tmp-dir t)))
 
 ; --------------- customize visual settings
 
@@ -322,7 +336,8 @@ point."
   (set-frame-width (selected-frame) 163)
   ; (sleep-for 0 500)  ; it looks like set-frame-window does not take effect
                        ; immediately in CVS emacs as of 2/18/09
-  (split-window-horizontally -80))
+  (split-window-horizontally)
+  (balance-windows))
 
 (defun ak-triple ()
   (interactive)
@@ -330,8 +345,9 @@ point."
   (set-frame-width (selected-frame) 246)
   ; (sleep-for 0 500)  ; it looks like set-frame-window does not take effect
                        ; immediately in CVS emacs as of 2/18/09
-  (split-window-horizontally -80)
-  (split-window-horizontally -80))
+  (split-window-horizontally)
+  (split-window-horizontally)
+  (balance-windows))
 
 ; Go to the first character on the line
 (defun chrisk-beginning-of-line ()
