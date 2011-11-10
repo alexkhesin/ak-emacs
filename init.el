@@ -7,7 +7,6 @@
   (load-file (expand-file-name file (concat user-emacs-directory "ak-emacs"))))
 
 (ak-load-source-controlled-library "package-installer.el")
-(ak-load-source-controlled-library "custom-packages.el")
 (ak-load-source-controlled-library "ecb-cedit.el")
 (ak-load-source-controlled-library "autosave.el")
 
@@ -36,11 +35,13 @@
   ; on mac, there's always a menu bar drown, don't have it empty
   (menu-bar-mode -1))                     ; C-mouse-3 to access menu
 
-(when ak-mac-os-x
-  ; or do I have to do (set-frame-font "Menlo-12")?
-  (set-face-font 'default "Menlo-12"))  ; default in Snow Leopard
 (when ak-linux
   ; TODO(alexk) why a different method for setting font?
+  ; there is also
+  ;   (set-face-font 'default "Menlo-12"))
+  ; and
+  ;   (set-frame-font "Menlo-12")
+  ; don't know what method of setting fonts is right
   (setq default-frame-alist (append default-frame-alist '((font . "7x13")))))
 
 (color-theme-xemacs)
