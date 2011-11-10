@@ -5,8 +5,7 @@
 ;; /tmp gets wiped on restarts; avoid NFS (~/) on corp workstations
 (defconst durable-tmp-dir
   (let ((dir (concat "/usr/local/google/home/" (user-login-name) "/tmp/")))
-    (if (file-exists-p dir)
-	dir
+    (if (file-exists-p dir) dir
       (concat user-emacs-directory "tmp/"))))
 
 (defvar autosave-dir (concat durable-tmp-dir "emacs_autosaves/"))

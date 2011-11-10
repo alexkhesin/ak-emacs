@@ -1,35 +1,43 @@
-;;;;;;;; bootstrap
-
 ; No effort is made to preserve compatibility with older versions.
 (if (or (< emacs-major-version 24) (string-match "XEmacs" emacs-version))
     (error "Requires GNU emacs 24 or above"))
 
 (defun ak-load-source-controlled-library (file)
-  (load-file (expand-file-name file (concat user-emacs-directory "alexkhesin"))))
+  (load-file (expand-file-name file (concat user-emacs-directory "ak-emacs"))))
 
-(ak-load-source-controlled-library "ak.el")
 (ak-load-source-controlled-library "package-installer.el")
 (ak-load-source-controlled-library "custom-packages.el")
 (ak-load-source-controlled-library "ecb-cedit.el")
 (ak-load-source-controlled-library "autosave.el")
 
-;;;;;;;; turn off silly things
+(defconst ak-mac-os-x (string-match "apple-darwin" system-configuration))
+(defconst ak-linux (string-match "linux-gnu" system-configuration))
+
+; --------------- customize basic text editing
+
+(setq-default tab-width 2)
+(setq-default indent-tabs-mode nil)  ; don't replace spaces with tabs
+
+; --------------- turn off silly things
+
 (fset 'yes-or-no-p 'y-or-n-p)        ; no "yes" / "no" prompts
 (setq inhibit-startup-message t)
 
-;;;;;;;; customize visual settings
-(setq line-number-mode t)            ; have line numbers and
-(setq column-number-mode t)          ; column numbers in the mode line
-(scroll-bar-mode -1)                 ; no scroll bars
-(tool-bar-mode -1)                   ; no tool bar with icons
-(show-paren-mode 1)                  ; highlight matching parens
+; --------------- customize visual settings
+
+(setq truncate-partial-width-windows nil) ; wrap horizontally-split windows
+(setq line-number-mode t)                 ; have line numbers and
+(setq column-number-mode t)               ; column numbers in the mode line
+(scroll-bar-mode -1)                      ; no scroll bars
+(tool-bar-mode -1)                        ; no tool bar with icons
+(show-paren-mode 1)                       ; highlight matching parens
 (unless ak-mac-os-x
   ; on mac, there's always a menu bar drown, don't have it empty
-  (menu-bar-mode -1))                ; C-mouse-3 to access menu
+  (menu-bar-mode -1))                     ; C-mouse-3 to access menu
 
 (when ak-mac-os-x
+  ; or do I have to do (set-frame-font "Menlo-12")?
   (set-face-font 'default "Menlo-12"))  ; default in Snow Leopard
-; or do I have to do (set-frame-font "Menlo-12")?
 (when ak-linux
   ; TODO(alexk) why a different method for setting font?
   (setq default-frame-alist (append default-frame-alist '((font . "7x13")))))
@@ -38,7 +46,7 @@
 
 ; TODO(alexk) on Mac full cua-mode maps copy/paste to C-v/p, whereas by default
 ; (on emacs 24) copy/paste is M-v/p, which is great.  Need to figure
-; out if the full cua-mode is still needed on Linux.  Also see
+; out if the full cua-mode is still needed on Linux.
 (if ak-mac-os-x
     ; this is mostly needed for rectangle support?
     ; and perhaps delete-selection-mode, but that can be turned on separately
@@ -46,15 +54,35 @@
     (cua-selection-mode t)
   (cua-mode t))
 
-;;;;;;;; customize loaded modes
+; --------------- Ruby config
+
+(add-to-list 'auto-mode-alist '("Capfile" . ruby-mode))
+(add-to-list 'auto-mode-alist '("Gemfile" . ruby-mode))
+(add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
+(add-to-list 'auto-mode-alist '("\\.rake\\'" . ruby-mode))
+(add-to-list 'auto-mode-alist '("\\.ru\\'" . ruby-mode))
+
+; run a single test buffer
+; (from http://www.viget.com/extend/emacs-24-rails-development-environment-from-scratch-to-productive-in-5-minu/)
+(defun is-rails-project ()
+  (when (textmate-project-root)
+    (file-exists-p (expand-file-name "config/environment.rb"
+                                     (textmate-project-root)))))
+(defun run-rails-test-or-ruby-buffer ()
+  (interactive)
+  (if (is-rails-project)
+      (let* ((path (buffer-file-name))
+             (filename (file-name-nondirectory path))
+             (test-path (expand-file-name "test" (textmate-project-root)))
+             (command (list ruby-compilation-executable "-I" test-path path)))
+        (pop-to-buffer (ruby-compilation-do filename command)))
+    (ruby-compilation-this-buffer)))
+
+; --------------- customize various modes
 
 (autoload 'redo "redo+" nil t)
 (global-set-key [(control shift z)] 'redo)
 ; (global-set-key "\C-?" 'redo)  ; control shift _, but cannot make it work
-
-(eval-after-load 'rinari
-  '(progn
-     (setq rinari-tags-file-name "TAGS")))
 
 (setq
  nxhtml-global-minor-mode t
@@ -63,11 +91,8 @@
  indent-region-mode t
  rng-nxml-auto-validate-flag nil
  nxml-degraded t)
-(add-to-list 'auto-mode-alist
-	     '("\\.html\\.erb\\'" .
-	       eruby-nxhtml-mumamo))
 
-(autoload 'dot-mode "dot-mode" nil t)
+; (autoload 'dot-mode "dot-mode" nil t)
 (eval-after-load 'dot-mode
   '(progn
      ; rebind dot-mode-execute from C-. to M-.
@@ -75,7 +100,7 @@
      (define-key dot-mode-map [(meta \.)] 'dot-mode-execute)))
 ;; dot-mode is broken in emacs 24 because it uses obsolete make-local-hook
 ;; (global-set-key "\M-." (lambda () (interactive) (dot-mode 1)
-;; 			 (message "Dot mode activated.")))
+;;                       (message "Dot mode activated.")))
 
 ; Install mode-compile to give friendlier compiling support (for Ruby in
 ; particular). (think about how to integrate it with google-compile?)
@@ -85,9 +110,6 @@
 (autoload 'mode-compile-kill "mode-compile"
   "Command to kill a compilation launched by `mode-compile'" t)
 (global-set-key "\C-ck" 'mode-compile-kill)
-
-; winner-mode provides C-c + <left/right> to get back to previous window layout
-(winner-mode 1)
 
 ; whenever an external process changes a file underneath emacs, and there
 ; was no unsaved changes in the corresponding buffer, just revert its
@@ -138,46 +160,22 @@
 (require 'savehist)
 (savehist-load)                         ; save minubuffers history
 (require 'minibuf-isearch)              ; minibuffer incremental search (C-r,C-s)
-					; not sure if needed in emacs 24
-
-
-; --> not clear that these are neccessary,
-;     http://rinari.rubyforge.org/Rhtml-Setup.html#Rhtml-Setup
-;     says that these are options inferior to nxhtml
-; ;; MuMaMo-Mode for rhtml files
-; (add-to-list 'load-path "~/.emacs.d/nxhtml/util")
-; (require 'mumamo-fun)
-; (setq mumamo-chunk-coloring 'submode-colored)
-; (add-to-list 'auto-mode-alist '("\\.rhtml\\'" . eruby-html-mumamo))
-; (add-to-list 'auto-mode-alist '("\\.html\\.erb\\'" . eruby-html-mumamo))
-; ; rhtml-mode
-; (add-to-list 'load-path "~/.emacs.d/rhtml")
-; (require 'rhtml-mode)
-; (add-hook 'rhtml-mode-hook (lambda () (rinari-launch)))
-
-;;; --> this went to :after el-get hook, need to test it actually works
-; from Optional Setup
-;; (setq rinari-tags-file-name "TAGS")
-
-;;;;; http://appsintheopen.com/articles/1-setting-up-emacs-for-rails-development/part/8-rails-options-for-emacs recommends the following; not sure I want it yet
-; ;;; rhtml mode
-; (require 'rhtml-mode)
-; ; put rhtml templates into rhtml-mode
-; (setq auto-mode-alist  (cons '("\\.erb$" . rhtml-mode) auto-mode-alist))
-; ; put any rjs scripts into ruby-mode, as they are basically ruby
-; (setq auto-mode-alist  (cons '("\\.rjs$" . ruby-mode) auto-mode-alist))
+                                        ; not sure if needed in emacs 24
+(eval-after-load 'rinari
+  ; run something like
+  ;   ctags-exuberant -a -e -f TAGS --tag-relative -R app lib vendor
+  ; to create a tag file
+  '(progn (setq rinari-tags-file-name "TAGS")))
 
 (add-hook 'write-file-hooks #'delete-trailing-whitespace)
 
-;; find file at point
-(require 'ffap)
+(require 'ffap)   ; find file at point
 ; rebind C-x C-f and others to the ffap bindings
 (ffap-bindings)
 ; browse urls at point via w3m
 ; (setq ffap-url-fetcher 'w3m-browse-url)
 
-; provide some dired goodies and dired-jump at C-x C-j
-(load "dired-x")
+(load "dired-x")   ; provide some dired goodies and dired-jump at C-x C-j
 
 ; Customize buffer names when several buffers visit identically-named files
 (require 'uniquify)
@@ -214,7 +212,7 @@
   (flyspell-mode 1)
   (ak-fix-flyspell-keymap))
 
-;; Enable tab-completion
+; Enable tab-completion
 (defun ak-indent-or-expand (arg)
   "Either indent according to mode, or expand the word preceding
 point."
@@ -244,37 +242,45 @@ point."
 
 (add-hook 'text-mode-hook       'ak-flyspell-mode)
 
-;  common hook function for all programming language modes
-(defun ak-prog-modes-hook ()
-  (setq fill-column 80)
-  (turn-on-auto-fill)                       ; automatic line breaking
-  (setq compilation-scroll-output t)
-  (local-set-key [tab] 'ak-indent-or-expand)
-  (flyspell-prog-mode)
-  (ak-fix-flyspell-keymap)
-  (local-set-key (kbd "RET") 'newline-and-indent)
-  (local-set-key [M-down]    'next-error)
-  (local-set-key [M-up]      '(lambda () (interactive) (next-error -1)))
-)
-
 (setq ak-prog-mode-hooks
       (list 'c-mode-common-hook
-	    'sh-mode-hook
-	    'python-mode-hook
-	    'ruby-mode-hook
-	    'emacs-lisp-mode-hook
-	    'cperl-mode-hook
-	    'autoconf-mode-hook
-	    'autotest-mode-hook
-	    'makefile-mode-hook))
+            'sh-mode-hook
+            'python-mode-hook
+            'ruby-mode-hook
+            'emacs-lisp-mode-hook
+            'cperl-mode-hook
+            'autoconf-mode-hook
+            'autotest-mode-hook
+            'makefile-mode-hook
+            'css-mode-hook))
 
-(dolist (mode-hook ak-prog-mode-hooks)
-  (add-hook mode-hook 'ak-prog-modes-hook))
-
-; even smarter RET for c-modes
 (add-hook 'c-mode-common-hook
-	  '(lambda () (local-set-key (kbd "RET") 'c-context-line-break))
-	  t)  ; t means insert-after, e.g. override ak-prog-mode-hooks
+          '(lambda ()
+             ; even smarter RET for c-modes
+             (local-set-key (kbd "RET") 'c-context-line-break)
+             ; When I yank a piece of code ( known as paste in Windows lingo )
+             ; into an existing function, I like to have it indent itself to the
+             ; proper level automatically. This simple macro runs yank ( C-y )
+             ; followed by an indent current function. ( C-c C-q )
+             (local-set-key "\C-v" 'do-smart-yank)
+             (fset 'do-smart-yank "\C-y\C-c\C-q")))
+
+(add-hook 'css-mode-hook
+          '(lambda () (setq css-indent-offset 2)))
+
+;  common hook function for all programming language modes
+(dolist (mode-hook ak-prog-mode-hooks)
+  (add-hook mode-hook
+       '(lambda ()
+          (setq fill-column 80)
+          (turn-on-auto-fill)                       ; automatic line breaking
+          (setq compilation-scroll-output t)
+          (local-set-key [tab] 'ak-indent-or-expand)
+          (flyspell-prog-mode)
+          (ak-fix-flyspell-keymap)
+          (local-set-key (kbd "RET") 'newline-and-indent)
+          (local-set-key [M-down]    'next-error)
+          (local-set-key [M-up]      '(lambda () (interactive) (next-error -1))))))
 
 ; allow bringing up a search-and-replace using the history mechanism in
 ; MiniBuffer)
@@ -282,26 +288,55 @@ point."
 
 ; attempt to reuse windows instead of splitting
 ; --> does not work very well in emacs 24.x anymore
-; (setq split-height-threshold nil)
+
+(setq split-height-threshold nil)
 ; (setq split-width-threshold nil)
 ; and such appear to be the right ways to tune this, see
 ; http://lists.gnu.org/archive/html/help-gnu-emacs/2011-02/msg00350.html
 ;
 ;; (setq display-buffer-function
 ;;       '(lambda (buffer-or-name not-this-window)
-;; 	 (message "%s" buffer-or-name)
-;;  	 (if (null (get-buffer-window buffer-or-name))
-;;  	     (progn (if (one-window-p t)
-;;  			(split-window (get-largest-window) nil t))
-;;  		    (set-window-buffer (get-lru-window) buffer-or-name)))
-;;  	 (get-buffer-window buffer-or-name)))
+;;       (message "%s" buffer-or-name)
+;;       (if (null (get-buffer-window buffer-or-name))
+;;           (progn (if (one-window-p t)
+;;                      (split-window (get-largest-window) nil t))
+;;                  (set-window-buffer (get-lru-window) buffer-or-name)))
+;;       (get-buffer-window buffer-or-name)))
 
-;; wrap horizontally-split windows
-; (http://www.emacswiki.org/cgi-bin/emacs/TruncateLines)
-(setq truncate-partial-width-windows nil)
+; --------------- random utilities
+
+(defun ak-match-paren (arg)
+  "Go to the matching parenthesis if on parenthesis otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+
+(defun ak-single ()
+  (interactive)
+  (delete-other-windows)
+  (set-frame-width (selected-frame) 80))
+
+(defun ak-double ()
+  (interactive)
+  (delete-other-windows)
+  (set-frame-width (selected-frame) 163)
+  ; (sleep-for 0 500)  ; it looks like set-frame-window does not take effect
+                       ; immediately in CVS emacs as of 2/18/09
+  (split-window-horizontally -80))
+
+(defun ak-triple ()
+  (interactive)
+  (delete-other-windows)
+  (set-frame-width (selected-frame) 246)
+  ; (sleep-for 0 500)  ; it looks like set-frame-window does not take effect
+                       ; immediately in CVS emacs as of 2/18/09
+  (split-window-horizontally -80)
+  (split-window-horizontally -80))
 
 ; Go to the first character on the line
 (defun chrisk-beginning-of-line ()
+  (interactive)
   (let ((start (point)))
     (back-to-indentation)
     (if (= start (point)) (beginning-of-line))))
@@ -313,14 +348,19 @@ point."
 (global-set-key [(control tab)] 'other-window)
 (global-set-key "\M-g" 'goto-line)
 ;; Smart paste
-(global-set-key "\C-v" 'do-smart-yank)
-(fset 'do-smart-yank "\C-y\C-c\C-q")
 (global-set-key [(meta f12)] 'recentf-open-files)
 (global-set-key "\C-a" 'chrisk-beginning-of-line)
 (global-set-key [home] 'chrisk-beginning-of-line)
 (global-set-key "%" 'ak-match-paren)             ; parenthesis matching
 
+(winner-mode 1)   ; C-c + <left/right> to get back to previous window layout
+(windmove-default-keybindings 'meta) ; navigate windows with M-<arrows>
+(setq windmove-wrap-around t)
+
 ; load local customizations if any
+(defun ak-load-local-library-if-present (file)
+  (let ((fname (expand-file-name file user-emacs-directory)))
+    (when (file-exists-p fname) (load-file fname))))
 (ak-load-local-library-if-present "local.el")
 
 (custom-set-variables

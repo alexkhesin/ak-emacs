@@ -1,1 +1,12 @@
-(load-file (expand-file-name "init.el" (concat user-emacs-directory "alexkhesin")))
+Clone the repository into your ~/.emacs.d/ and put the following into
+your .emacs:
+
+(load-file (expand-file-name "init.el"
+            (concat user-emacs-directory "ak-emacs")))
+
+you might have to restart emacs a few times to let el-get download all packages
+((el-get 'wait) seems busted?)
+
+Needs
+   $ sudo port install aspell aspell-dict-en
+to install on a Mac
