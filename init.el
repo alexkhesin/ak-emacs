@@ -1,6 +1,7 @@
-; No effort is made to preserve compatibility with older versions.
-(if (or (< emacs-major-version 24) (string-match "XEmacs" emacs-version))
-    (error "Requires GNU emacs 24 or above"))
+; No effort is made to preserve compatibility with older versions
+; (most of testing is done with emacs 24)
+(if (or (< emacs-major-version 23) (string-match "XEmacs" emacs-version))
+    (error "Requires GNU emacs 23 or above"))
 
 (defun ak-load-source-controlled-library (file)
   (load-file (expand-file-name file (concat user-emacs-directory "ak-emacs"))))

@@ -45,5 +45,10 @@
 (package-refresh-contents)  ; elpa refresh
 ; (el-get-update-all) ; <- does not appear to be smart, don't run it every time
 
-(el-get 'sync my-el-get-packages)
-(el-get 'wait)
+(defun ak-el-get-sync()
+  (el-get 'sync my-el-get-packages)
+  (el-get 'wait))
+(ak-el-get-sync)
+
+(if ak-el-get-new-install
+  (error "New installation: run ak-el-get-sync a few times, until it no longer brings new packages, then restart emacs"))
