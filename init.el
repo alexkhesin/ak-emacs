@@ -87,12 +87,9 @@
 ; (global-set-key "\C-?" 'redo)  ; control shift _, but cannot make it work
 
 (setq
- nxhtml-global-minor-mode t
- mumamo-chunk-coloring 'submode-colored
- nxhtml-skip-welcome t
- indent-region-mode t
- rng-nxml-auto-validate-flag nil
- nxml-degraded t)
+ ; nxhtml-global-minor-mode t  ; show nxhtml menu (is it on by default?)
+ mumamo-chunk-coloring 1     ; color submode chunks of depth > 1
+ nxhtml-skip-welcome t)
 
 ; (autoload 'dot-mode "dot-mode" nil t)
 (eval-after-load 'dot-mode
