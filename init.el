@@ -349,6 +349,10 @@ point."
   (split-window-horizontally)
   (balance-windows))
 
+(defun ak-mac-height ()
+  (interactive)
+  (set-frame-height (selected-frame) 56))
+
 ; Go to the first character on the line
 (defun chrisk-beginning-of-line ()
   (interactive)
