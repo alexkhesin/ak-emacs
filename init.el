@@ -12,15 +12,11 @@
 (defconst ak-mac-os-x (string-match "apple-darwin" system-configuration))
 (defconst ak-linux (string-match "linux-gnu" system-configuration))
 
-; --------------- customize basic text editing
-
-(setq-default tab-width 2)
-(setq-default indent-tabs-mode nil)  ; don't replace spaces with tabs
-
 ; --------------- turn silly things off
 
 (fset 'yes-or-no-p 'y-or-n-p)        ; no "yes" / "no" prompts
 (setq inhibit-startup-message t)
+(blink-cursor-mode t)
 
 ; --------------- autosave
 
@@ -285,6 +281,8 @@ point."
 (dolist (mode-hook ak-prog-mode-hooks)
   (add-hook mode-hook
        '(lambda ()
+          ; (setq-default tab-width 2)  ; do I need this?
+          (setq-default indent-tabs-mode nil)  ; don't replace spaces with tabs
           (setq fill-column 80)
           (turn-on-auto-fill)                       ; automatic line breaking
           (setq compilation-scroll-output t)
