@@ -56,14 +56,21 @@
 
 (color-theme-xemacs)
 
-; TODO(alexk) on Mac full cua-mode maps copy/paste to C-v/p, whereas by default
-; (on emacs 24) copy/paste is M-v/p, which is great.  Need to figure
-; out if the full cua-mode is still needed on Linux.
 (if ak-mac-os-x
-    ; this is mostly needed for rectangle support?
-    ; and perhaps delete-selection-mode, but that can be turned on separately
-    ; with (delete-selection-mode 1)
-    (cua-selection-mode t)
+    ; If you want a mac-native behavior (Command-c/v/x for copy-paste, uncomment
+    ; (cua-selection-mode t) below, and kill the progn that follows.  Emacs 24
+    ; already defaults to M-c/v for copy/paste on a Mac, and cua-selection-mode
+    ; is only needed for rectangle support (and delete-selection-mode, but that
+    ; can be turned on separately with (delete-selection-mode 1).
+    ;; (cua-selection-mode t)
+    ;
+    ; This gives more familiar bindings to those who cannot get Linux bindings
+    ; out of their muscle memory, even when using emacs on a Mac.
+    (progn
+      (cua-mode t)
+      (setq mac-command-modifier 'meta)
+      (setq mac-option-modifier nil))
+  ; TODO(alexk) check if the full cua-mode is still needed on Linux in Emacs 24.
   (cua-mode t))
 
 ; --------------- Ruby config
@@ -131,38 +138,21 @@
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
-; If you do use M-x term, you will notice there's line mode that acts like
-; emacs buffers, and there's the default char mode that will send your
-; input char-by-char, so that curses application see each of your key
-; strokes.
-;
-; The default way to toggle between them is C-c C-j and C-c C-k, let's
-; better use just one key to do the same.
-(require 'term)
-(define-key term-raw-map  (kbd "C-'") 'term-line-mode)
-(define-key term-mode-map (kbd "C-'") 'term-char-mode)
-
-; Have C-y act as usual in term-mode, to avoid C-' C-y C-'
-; Well the real default would be C-c C-j C-y C-c C-k.
-(define-key term-raw-map  (kbd "C-y") 'term-paste)
-
 (require 'ido)
 (ido-mode 'buffers)
-; (ido-mode 'both)  ;; this enables ide-find-file which I do not like
+; (ido-mode 'both)  ;; this enables ido-find-file which I do not like
 (setq ido-enable-flex-matching t)
 ; alexk: does not seem to have any effect
 ; -- but may be it does - I think I was missing the ido-default-buffer-method bit
-(setq ido-default-file-method 'samewindow)
-(setq ido-default-buffer-method 'samewindow)
+; (setq ido-default-file-method 'samewindow)
+; (setq ido-default-buffer-method 'raise-frame)
 ; from https://github.com/dimitri/emacs-kicker/blob/master/init.el
 ; --> figure out if makes sense (says "ido for minibuffer completion")
-;; (setq ido-save-directory-list-file "~/.emacs.d/.ido.last")
 ;; (setq ido-use-filename-at-point 'guess)
 ;; (setq ido-show-dot-for-dired t)
 
 ; ibuffer config
 ; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
-; (global-set-key (kbd "C-x B") 'ibuffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (setq ibuffer-default-sorting-mode 'filename/process)
 
@@ -181,8 +171,7 @@
 (require 'ffap)   ; find file at point
 ; rebind C-x C-f and others to the ffap bindings
 (ffap-bindings)
-; browse urls at point via w3m
-; (setq ffap-url-fetcher 'w3m-browse-url)
+(setq ffap-url-fetcher 'browse-url-at-point)
 
 (load "dired-x")   ; provide some dired goodies and dired-jump at C-x C-j
 
@@ -196,10 +185,6 @@
 (recentf-mode 1)
 (setq recentf-max-saved-items 500)
 (setq recentf-max-menu-items 60)
-
-;  turn on which-func, but do not show it in the mode-line
-(which-func-mode t)
-(delete (assoc 'which-func-mode mode-line-format) mode-line-format)
 
 ; Spell checking
 ;; to install on a Mac:
@@ -381,14 +366,14 @@ point."
 (ak-load-local-library-if-present "local.el")
 
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(ecb-options-version "2.40"))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-)
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

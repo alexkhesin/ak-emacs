@@ -45,7 +45,6 @@
 (setq my-el-get-packages
       (append
        '(el-get                    ; el-get is self-hosting
-         escreen                   ; screen for emacs, C-\ C-h
          dot-mode                  ; like ctrl+. in vi (repeat last cmd)
          switch-window             ; takes over C-x o
          ; need to understand how auto-complete interacts with dabbrev
@@ -59,8 +58,8 @@
          inf-ruby                  ; inferior ruby mode
          ruby-compilation          ; run ruby process in compilation buffer
          ; rinari                  ; ruby IDE
-         ; cedet                   ; emacs IDE
-         ; ecb                     ; emacs code browser, depends on CEDET
+         textmate
+         ecb                       ; emacs code browser
          ; http://rinari.rubyforge.org/Rhtml-Setup.html#Rhtml-Setup
          ; says that nxhtml is better than rhtml
          nxhtml                    ; provides Mumamo among other HTML utils
@@ -72,7 +71,6 @@
          ; yasnippet               ; textmate-like snippet mode
          ;; think about how to integrate it with google-compile?
          mode-compile                 ; mode-specific compile support
-         textmate
          rvm)
        (mapcar 'el-get-source-name el-get-sources)))
 
