@@ -144,8 +144,8 @@
 (setq ido-enable-flex-matching t)
 ; alexk: does not seem to have any effect
 ; -- but may be it does - I think I was missing the ido-default-buffer-method bit
-; (setq ido-default-file-method 'samewindow)
-; (setq ido-default-buffer-method 'raise-frame)
+(setq ido-default-file-method 'selected-window)
+(setq ido-default-buffer-method 'selected-window)
 ; from https://github.com/dimitri/emacs-kicker/blob/master/init.el
 ; --> figure out if makes sense (says "ido for minibuffer completion")
 ;; (setq ido-use-filename-at-point 'guess)
@@ -185,6 +185,10 @@
 (recentf-mode 1)
 (setq recentf-max-saved-items 500)
 (setq recentf-max-menu-items 60)
+
+; turn on which-func, but do not show it in the mode-line (only in title bar)
+(which-func-mode t)
+(delete (assoc 'which-func-mode mode-line-format) mode-line-format)
 
 ; Spell checking
 ;; to install on a Mac:
