@@ -1,3 +1,7 @@
+; Note that this is unused currently - load-file in init.el is commented out
+
+
+
 ;;; CEDET/ECB set up is from http://appsintheopen.com/articles/1-setting-up-emacs-for-rails-development/part/6-setting-up-the-emacs-code-browser
 ;; CEDET
 ; enable EDE (Project Management) features
@@ -9,7 +13,8 @@
 ;; (semantic-load-enable-code-helpers)
 
 ;; ECB
-; This variable is gone in emacs 24 but ECB still references it
+; stack-trace-on-error is gone in emacs 24 but ECB still references it,
+; so define it here
 (setq stack-trace-on-error t)
 ; wtf does this not work here but works in custom-set-variables??
 ; (setq ecb-options-version "2.40")

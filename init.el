@@ -7,7 +7,8 @@
   (load-file (expand-file-name file (concat user-emacs-directory "ak-emacs"))))
 
 (ak-load-source-controlled-library "package-installer.el")
-(ak-load-source-controlled-library "ecb-cedit.el")
+; too heavy-weight, do not use for now
+; (ak-load-source-controlled-library "ecb-cedit.el")
 
 (defconst ak-mac-os-x (string-match "apple-darwin" system-configuration))
 (defconst ak-linux (string-match "linux-gnu" system-configuration))
@@ -97,6 +98,14 @@
         (pop-to-buffer (ruby-compilation-do filename command)))
     (ruby-compilation-this-buffer)))
 
+; textmate wants to be a global minor mode, but I only use a few commands
+; out of it, and it's keymap is evil - it is different on Mac vs Linux.  So
+; disable the minor mode, and only pull in the functions that I actually use -
+; textmate-project-root is used by code above, textmate-goto-file is given a key
+; binding below.  textmate-goto-symbol also looks interesting, maybe I should
+; bind a key for it too.
+(textmate-mode 0)
+
 ; --------------- customize various modes
 
 (autoload 'redo "redo+" nil t)
@@ -160,11 +169,11 @@
 (savehist-load)                         ; save minubuffers history
 (require 'minibuf-isearch)              ; minibuffer incremental search (C-r,C-s)
                                         ; not sure if needed in emacs 24
-(eval-after-load 'rinari
-  ; run something like
-  ;   ctags-exuberant -a -e -f TAGS --tag-relative -R app lib vendor
-  ; to create a tag file
-  '(progn (setq rinari-tags-file-name "TAGS")))
+; (eval-after-load 'rinari
+;  ; run something like
+;  ;   ctags-exuberant -a -e -f TAGS --tag-relative -R app lib vendor
+;  ; to create a tag file
+;  '(progn (setq rinari-tags-file-name "TAGS")))
 
 (add-hook 'write-file-hooks #'delete-trailing-whitespace)
 
@@ -278,9 +287,11 @@ point."
           (local-set-key [tab] 'ak-indent-or-expand)
           (flyspell-prog-mode)
           (ak-fix-flyspell-keymap)
+          (local-set-key "\M-p"      'textmate-goto-file)
           (local-set-key (kbd "RET") 'newline-and-indent)
           (local-set-key [M-down]    'next-error)
-          (local-set-key [M-up]      '(lambda () (interactive) (next-error -1))))))
+          (local-set-key [M-up]      '(lambda () (interactive)
+                                        (next-error -1))))))
 
 ; allow bringing up a search-and-replace using the history mechanism in
 ; MiniBuffer)

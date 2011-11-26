@@ -57,9 +57,15 @@
          goto-last-change          ; move pointer back to last change
          inf-ruby                  ; inferior ruby mode
          ruby-compilation          ; run ruby process in compilation buffer
-         ; rinari                  ; ruby IDE
+         ;; Rinari, textmate, ECB have all been mentioned as being useful
+         ;; for Ruby/Rails. They all are heavyweight; textmate is the thinnest
+         ;; of them and provides all of the functionality I need at the moment.
          textmate
-         ecb                       ; emacs code browser
+         ;;; if rinari is ever turned on, nxhtml should be reinstalled as it
+         ;;; seems to do things differently based on rinari's presense
+         ; rinari                  ; ruby IDE
+         ; ecb                     ; emacs code browser
+
          ; http://rinari.rubyforge.org/Rhtml-Setup.html#Rhtml-Setup
          ; says that nxhtml is better than rhtml
          nxhtml                    ; provides Mumamo among other HTML utils
