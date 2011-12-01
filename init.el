@@ -305,6 +305,15 @@ point."
 ; and such appear to be the right ways to tune this, see
 ; http://lists.gnu.org/archive/html/help-gnu-emacs/2011-02/msg00350.html
 ;
+; --> display-buffer in emacs 24 is much more complex and overriding
+; display-buffer-function does not seem to work cleanly anymore (in particular,
+; in emacs 23, display-buffer-function was not called at all on opening new
+; files, whereas in emacs 24 it is called, and with override below, new files
+; are always open in lru window, which is not the desired effect (should be the
+; current window).  But emacs 24 seems to behave sensibly even without this
+; override; the biggest ill effect of not having it is that gtags searches do
+; not seem to be picking LRU windows, which needs to be investigated.
+
 ;; (setq display-buffer-function
 ;;       '(lambda (buffer-or-name not-this-window)
 ;;       (message "%s" buffer-or-name)
