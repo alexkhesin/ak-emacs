@@ -313,7 +313,6 @@ point."
 ; current window).  But emacs 24 seems to behave sensibly even without this
 ; override; the biggest ill effect of not having it is that gtags searches do
 ; not seem to be picking LRU windows, which needs to be investigated.
-
 ;; (setq display-buffer-function
 ;;       '(lambda (buffer-or-name not-this-window)
 ;;       (message "%s" buffer-or-name)
