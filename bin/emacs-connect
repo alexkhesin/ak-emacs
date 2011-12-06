@@ -12,7 +12,7 @@ if [ -z "$name" ]; then
     echo "Usage: connect_emacs <name> <args>..." >&2
     exit 1
 fi
-$(dirname $0)/emacs-preload "$name" wait
+$(dirname $0)/emacs-preload "$name"
 
 if [ "$(uname -s)" = "Darwin" ]; then
   EC=/Applications/Emacs.app/Contents/MacOS/bin/emacsclient

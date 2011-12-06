@@ -1,13 +1,10 @@
 #!/bin/bash
-# Usage: preload-emacs <name> [<waitp>]
+# Usage: preload-emacs <name>
 #
 # Preloads the Emacs daemon instance called NAME.
-# Does nothing if the instance is already running.  If WAITP
-# is non-empty, the function waits until the server starts up and
-# creates its socket; otherwise it returns immediately.
+# Does nothing if the instance is already running.
 
 name="$1"
-waitp="$2"
 serverdir="${TMPDIR:-/tmp}/emacs$UID"
 
 if [ "$(uname -s)" = "Darwin" ]; then
@@ -24,8 +21,5 @@ if [ -z "$name" ]; then
 fi
 
 if [ ! -e "$serverdir/$name" ]; then
-     "$emacs" --eval "(setq server-name \"$name\")" --daemon
-fi
-if [ ! -z "$waitp" ]; then
-    while [ ! -e "$serverdir/$name" ]; do sleep 0.1; done
+     "$emacs" --daemon="$name"
 fi
