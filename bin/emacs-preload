@@ -8,7 +8,7 @@
 
 name="$1"
 waitp="$2"
-serverdir="/tmp/emacs$UID"
+serverdir="$TMPDIR/emacs$UID"
 
 if [ "$(uname -s)" = "Darwin" ]; then
   emacs=/Applications/Emacs.app/Contents/MacOS/Emacs
