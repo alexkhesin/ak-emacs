@@ -12,17 +12,24 @@ if [ -z "$name" ]; then
     echo "Usage: connect_emacs <name> <args>..." >&2
     exit 1
 fi
-$(dirname $0)/emacs-preload "$name"
 
 if [ "$(uname -s)" = "Darwin" ]; then
-  EC=/Applications/Emacs.app/Contents/MacOS/bin/emacsclient
+  emacs=/Applications/Emacs.app/Contents/MacOS/Emacs
+  emacsclient=/Applications/Emacs.app/Contents/MacOS/bin/emacsclient
+elif [ -e /usr/local/bin/emacs ]; then
+  emacs=/usr/local/bin/emacs
+  emacsclient=/usr/local/bin/emacsclient
 else
-  if [ -e /usr/local/bin/emacsclient ]; then
-    EC=/usr/local/bin/emacsclient
-  else
-    EC=/usr/bin/emacsclient
-  fi
+  emacs=/usr/bin/emacs
+  emacsclient=/usr/bin/emacsclient
+fi
 
+# launch daemon if not running already
+if [ ! -e "${TMPDIR:-/tmp}/emacs$UID/$name" ]; then
+  "$emacs" --daemon="$name"
+fi
+
+if [ "$(uname -s)" = "Linux" ]; then
   # Problem: X, NX, X over ssh don't get along with permissions. In
   # particular, emacs opened on one of these can't open a window on one
   # of the other x servers.
@@ -31,9 +38,9 @@ else
   # <http://calypso.tux.org/pipermail/xemacs-beta/2009-May/016494.html>
   # is adapted here for my setup.
   xauth list | while read dpy; do
-    $EC -s "$name" -e "(shell-command \"xauth add $dpy\")" >/dev/null &
+    $emacsclient -s "$name" -e "(shell-command \"xauth add $dpy\")" >/dev/null &
   done
 fi
 
 # And finally run emacs-client
-$EC --create-frame --socket-name="$name" "$@"
+$emacsclient --create-frame --socket-name="$name" "$@"
