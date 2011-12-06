@@ -1,3 +1,5 @@
+This assumes an empty ~/.emacs.d/ and emacs 24.
+
 Clone the repository into your ~/.emacs.d/ and put the following into
 your .emacs:
 
@@ -10,3 +12,16 @@ you might have to restart emacs a few times to let el-get download all packages
 Needs
    $ sudo port install aspell aspell-dict-en
 to install on a Mac
+
+If you work for Google, consider copying ~alexk/.emacs.d/local.el to your ~/.emacs.d/
+
+=======
+
+Scripts to use emacs in daemon mode are in ~/.emacs.d/ak-emacs/bin directory; the following shell configuration is recommended:
+
+alias e="~/emacs.d/ak-emacs/bin/emacs-connect emacs.default"
+alias e1="~/emacs.d/ak-emacs/bin/emacs-connect emacs.1"
+... repeat for as many independent emacs sessions as your workflow requires
+
+export P4EDITOR=~/.emacs.d/ak-emacs/bin/emacs-p4
+export GIT_EDITOR="~/.emacs.d/ak-emacs/bin/emacs-connect emacs.git -t"

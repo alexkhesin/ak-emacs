@@ -1,0 +1,2 @@
+#!/bin/sh
+$(dirname $0)/emacs-connect emacs.p4 -t -e "(progn (find-file \"$1\") (beginning-of-buffer) (if (search-forward-regexp \"^Description\" nil t) (beginning-of-line 2)))"
