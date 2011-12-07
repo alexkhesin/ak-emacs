@@ -1,4 +1,4 @@
-This assumes an empty ~/.emacs.d/ and emacs 24.
+This assumes an empty ~/.emacs.d/, ~/.emacs that does not load any external libraries (we are going to switch to el-get/elpa for doing that), and emacs 24 which comes with integrated ELPA.
 
 Clone the repository into your ~/.emacs.d/ and put the following into
 your .emacs:
@@ -13,7 +13,7 @@ Needs
    $ sudo port install aspell aspell-dict-en
 to install on a Mac
 
-If you work for Google, consider copying ~alexk/.emacs.d/local.el to your ~/.emacs.d/
+If you work at Google, consider copying ~alexk/.emacs.d/local.el to your ~/.emacs.d/ and taking a look at ~alexk/.emacs.
 
 =======
 
