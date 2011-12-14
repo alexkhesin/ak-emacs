@@ -279,14 +279,14 @@ point."
 (dolist (mode-hook ak-prog-mode-hooks)
   (add-hook mode-hook
        '(lambda ()
-          (setq-default tab-width 2)  ; do I need this?
-          (setq-default indent-tabs-mode nil)  ; don't replace spaces with tabs
+          (setq tab-width 2)
+          (setq indent-tabs-mode nil)  ; don't replace spaces with tabs
           (setq fill-column 80)
-          (turn-on-auto-fill)                       ; automatic line breaking
           (setq compilation-scroll-output t)
-          (local-set-key [tab] 'ak-indent-or-expand)
+          (turn-on-auto-fill)                       ; automatic line breaking
           (flyspell-prog-mode)
           (ak-fix-flyspell-keymap)
+          (local-set-key [tab]       'ak-indent-or-expand)
           (local-set-key "\M-p"      'textmate-goto-file)
           (local-set-key (kbd "RET") 'newline-and-indent)
           (local-set-key [M-down]    'next-error)
