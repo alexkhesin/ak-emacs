@@ -37,7 +37,9 @@
   (install-el-get))
 ; extra recipes unknown to el-get (yet)
 (setq el-get-sources
-  '((:name minibuf-isearch
+  '((:name zenburn-theme :type elpa)
+    (:name solarized-theme :type elpa)
+    (:name minibuf-isearch
 	   :description "incremental search on minibuffer history"
 	   :type http
 	   :url "http://www.sodan.org/~knagano/emacs/minibuf-isearch/minibuf-isearch.el"
@@ -48,6 +50,9 @@
        '(el-get                    ; el-get is self-hosting
          dot-mode                  ; like ctrl+. in vi (repeat last cmd)
          switch-window             ; takes over C-x o
+         ; themes
+         zenburn-theme
+         solarized-theme
          ; need to understand how auto-complete interacts with dabbrev
          ; auto-complete           ; complete as you type with overlays
          graphviz-dot-mode         ; graphviz Dot language
@@ -72,7 +77,7 @@
          nxhtml                    ; provides Mumamo among other HTML utils
          ; rhtml-mode              ; major mode for RHTML (.html.erb) files
          yaml-mode
-         color-theme
+         ; color-theme ;; not using anymore?
          emacs-goodies-el          ; misc emacs add-ons
          ; psvn                    ; svn-status
          ; yasnippet               ; textmate-like snippet mode
