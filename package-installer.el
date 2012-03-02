@@ -20,8 +20,9 @@
       ;; Emacs 24+ includes ELPA, but requires some extra setup
       ;; to use the (better) tromey repo
       (setq package-archives
-            (cons '("tromey" . "http://tromey.com/elpa/")
-                  package-archives))
+            (cons '("marmalade" . "http://marmalade-repo.org/packages/")
+                  (cons '("tromey" . "http://tromey.com/elpa/")
+                        package-archives)))
       (package-initialize))
   (install-elpa))
 

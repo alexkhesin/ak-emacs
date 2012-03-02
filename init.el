@@ -54,8 +54,11 @@
   ;   (set-frame-font "Menlo-12")
   ; don't know what method of setting fonts is right
   (setq default-frame-alist (append default-frame-alist '((font . "7x13")))))
+; ---> look into http://www.handcoding.com/archives/2006/03/30/bitstream-vera-sans-mono-is-a-sweet-programming-font/
 
-(color-theme-xemacs)
+; (color-theme-xemacs)
+(load-theme 'zenburn t)
+;(load-theme 'solarized-dark t)
 
 (if ak-mac-os-x
     ; If you want a mac-native behavior (Command-c/v/x for copy-paste, uncomment
