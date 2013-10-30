@@ -15,9 +15,10 @@
 
 ; --------------- turn silly things off
 
-(fset 'yes-or-no-p 'y-or-n-p)        ; no "yes" / "no" prompts
+(fset 'yes-or-no-p 'y-or-n-p)          ; no "yes" / "no" prompts
 (setq inhibit-startup-message t)
 (blink-cursor-mode t)
+(setq compilation-ask-about-save nil)  ; save all buffers before compiling
 
 ; --------------- autosave
 
@@ -360,7 +361,7 @@ point."
 
 (defun ak-mac-height ()
   (interactive)
-  (set-frame-height (selected-frame) 56))
+  (set-frame-height (selected-frame) 65))
 
 ; Go to the first character on the line
 (defun chrisk-beginning-of-line ()

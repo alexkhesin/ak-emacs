@@ -39,6 +39,7 @@
 (setq el-get-sources
   '((:name zenburn-theme :type elpa)
     (:name solarized-theme :type elpa)
+    (:name auto-complete :type elpa)
     (:name minibuf-isearch
 	   :description "incremental search on minibuffer history"
 	   :type http
@@ -54,10 +55,12 @@
          zenburn-theme
          solarized-theme
          ; need to understand how auto-complete interacts with dabbrev
-         ; auto-complete           ; complete as you type with overlays
+         auto-complete           ; complete as you type with overlays
          graphviz-dot-mode         ; graphviz Dot language
          ; http://www.emacswiki.org/emacs/UndoTree might be better than Redo
          redo+                     ; Redo/undo system for Emacs
+         ; the above is broken in emacs 24.2, see work-around at
+         ; http://stackoverflow.com/questions/15429771/redo-el-on-osx-gnu-emacs-24
          magit                     ; git support
          minibuf-isearch           ; incremental search on minibuffer history
          goto-last-change          ; move pointer back to last change
