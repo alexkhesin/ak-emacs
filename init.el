@@ -155,8 +155,7 @@
 (ido-mode 'buffers)
 ; (ido-mode 'both)  ;; this enables ido-find-file which I do not like
 (setq ido-enable-flex-matching t)
-; alexk: does not seem to have any effect
-; -- but may be it does - I think I was missing the ido-default-buffer-method bit
+; allow for viewing a file in two different buffers
 (setq ido-default-file-method 'selected-window)
 (setq ido-default-buffer-method 'selected-window)
 ; from https://github.com/dimitri/emacs-kicker/blob/master/init.el
