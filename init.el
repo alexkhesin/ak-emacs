@@ -57,9 +57,10 @@
   (setq default-frame-alist (append default-frame-alist '((font . "7x13")))))
 ; ---> look into http://www.handcoding.com/archives/2006/03/30/bitstream-vera-sans-mono-is-a-sweet-programming-font/
 
-; (color-theme-xemacs)
-(load-theme 'zenburn t)
-;(load-theme 'solarized-dark t)
+; see https://github.com/bbatsov/zenburn-emacs/issues/89
+; and http://www.emacswiki.org/emacs/ELPA#toc4
+(add-hook 'after-init-hook '(lambda () (load-theme 'zenburn)))
+; (load-theme 'solarized-dark t)
 
 (if ak-mac-os-x
     ; If you want a mac-native behavior (Command-c/v/x for copy-paste, uncomment
@@ -78,37 +79,39 @@
   ; TODO(alexk) check if the full cua-mode is still needed on Linux in Emacs 24.
   (cua-mode t))
 
-; --------------- Ruby config
+;; Not planning to use Ruby at this point
+;;
+;; ; --------------- Ruby config
+;;
+;; (add-to-list 'auto-mode-alist '("Capfile" . ruby-mode))
+;; (add-to-list 'auto-mode-alist '("Gemfile" . ruby-mode))
+;; (add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
+;; (add-to-list 'auto-mode-alist '("\\.rake\\'" . ruby-mode))
+;; (add-to-list 'auto-mode-alist '("\\.ru\\'" . ruby-mode))
 
-(add-to-list 'auto-mode-alist '("Capfile" . ruby-mode))
-(add-to-list 'auto-mode-alist '("Gemfile" . ruby-mode))
-(add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
-(add-to-list 'auto-mode-alist '("\\.rake\\'" . ruby-mode))
-(add-to-list 'auto-mode-alist '("\\.ru\\'" . ruby-mode))
+;; ; run a single test buffer
+;; ; (from http://www.viget.com/extend/emacs-24-rails-development-environment-from-scratch-to-productive-in-5-minu/)
+;; (defun is-rails-project ()
+;;   (when (textmate-project-root)
+;;     (file-exists-p (expand-file-name "config/environment.rb"
+;;                                      (textmate-project-root)))))
+;; (defun run-rails-test-or-ruby-buffer ()
+;;   (interactive)
+;;   (if (is-rails-project)
+;;       (let* ((path (buffer-file-name))
+;;              (filename (file-name-nondirectory path))
+;;              (test-path (expand-file-name "test" (textmate-project-root)))
+;;              (command (list ruby-compilation-executable "-I" test-path path)))
+;;         (pop-to-buffer (ruby-compilation-do filename command)))
+;;     (ruby-compilation-this-buffer)))
 
-; run a single test buffer
-; (from http://www.viget.com/extend/emacs-24-rails-development-environment-from-scratch-to-productive-in-5-minu/)
-(defun is-rails-project ()
-  (when (textmate-project-root)
-    (file-exists-p (expand-file-name "config/environment.rb"
-                                     (textmate-project-root)))))
-(defun run-rails-test-or-ruby-buffer ()
-  (interactive)
-  (if (is-rails-project)
-      (let* ((path (buffer-file-name))
-             (filename (file-name-nondirectory path))
-             (test-path (expand-file-name "test" (textmate-project-root)))
-             (command (list ruby-compilation-executable "-I" test-path path)))
-        (pop-to-buffer (ruby-compilation-do filename command)))
-    (ruby-compilation-this-buffer)))
-
-; textmate wants to be a global minor mode, but I only use a few commands
-; out of it, and it's keymap is evil - it is different on Mac vs Linux.  So
-; disable the minor mode, and only pull in the functions that I actually use -
-; textmate-project-root is used by code above, textmate-goto-file is given a key
-; binding below.  textmate-goto-symbol also looks interesting, maybe I should
-; bind a key for it too.
-(textmate-mode 0)
+;; ; textmate wants to be a global minor mode, but I only use a few commands
+;; ; out of it, and it's keymap is evil - it is different on Mac vs Linux.  So
+;; ; disable the minor mode, and only pull in the functions that I actually use -
+;; ; textmate-project-root is used by code above, textmate-goto-file is given a key
+;; ; binding below.  textmate-goto-symbol also looks interesting, maybe I should
+;; ; bind a key for it too.
+;; (textmate-mode 0)
 
 ; --------------- customize various modes
 
@@ -170,7 +173,6 @@
 
 (require 'savehist)
 (savehist-load)                         ; save minubuffers history
-(require 'minibuf-isearch)              ; minibuffer incremental search (C-r,C-s)
                                         ; not sure if needed in emacs 24
 ; (eval-after-load 'rinari
 ;  ; run something like
