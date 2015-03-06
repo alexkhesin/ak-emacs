@@ -1,8 +1,8 @@
 (require 'package)
 
 (setq package-archives '(("marmalade" . "http://marmalade-repo.org/packages/")
-                         ; ("gnu" . "http://elpa.gnu.org/packages/")
-                         ; ("melpa-stable" . "http://stable.melpa.org/packages/")
+                         ("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa-stable" . "http://stable.melpa.org/packages/")
                          ))
 
 (package-initialize)
@@ -11,10 +11,11 @@
   (package-refresh-contents))
 
 (defvar packages '
-  (graphviz-dot-mode  ; graphviz Dot language
+  (graphviz-dot-mode    ; graphviz Dot language
    zenburn-theme
-   auto-complete      ; complete as you type with overlays
-   undo-tree          ; treat undo history as a tree
+   auto-complete        ; complete as you type with overlays
+   undo-tree            ; treat undo history as a tree
+   auto-package-update  ; automatically update ELPA packages on startup
 
 
    ; dot-mode					 ; like ctrl+. in vi (repeat last cmd)
@@ -56,3 +57,5 @@
 (dolist (package packages)
   (when (not (package-installed-p package))
     (package-install package)))
+
+(auto-package-update-maybe)

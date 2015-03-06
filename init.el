@@ -115,8 +115,7 @@
 ;; (textmate-mode 0)
 
 ; --------------- customize various modes
-
-(autoload 'redo "redo+" nil t)
+(global-undo-tree-mode)
 (global-set-key [(control shift z)] 'redo)
 ; (global-set-key "\C-?" 'redo)  ; control shift _, but cannot make it work
 
@@ -174,6 +173,7 @@
 
 (require 'savehist)
 (savehist-mode)                         ; save minubuffers history
+(setq history-delete-duplicates t)
 ; (eval-after-load 'rinari
 ;  ; run something like
 ;  ;   ctags-exuberant -a -e -f TAGS --tag-relative -R app lib vendor
@@ -208,16 +208,16 @@
 ; -----> hunspell does not work well yet; emacs 24.4 is supposed to make better
 ;;   sudo apt-get install hunspell hunspell-en-us
 ;;   sudo port install hunspell hunspell-dict-en_US
-;(setq-default ispell-program-name "hunspell")
-;(setq ispell-really-hunspell t)
-;(setq ispell-dictionary "american")
+(setq-default ispell-program-name "hunspell")
+(setq ispell-really-hunspell t)
+(setq ispell-dictionary "american")
 
 ; aspell
 ;; to install on a Mac:
 ;;   sudo port install aspell aspell-dict-en
-(setq-default ispell-program-name "aspell")
+;(setq-default ispell-program-name "aspell")
 ; make aspell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
-(setq-default ispell-extra-args '("--sug-mode=ultra"))
+;(setq-default ispell-extra-args '("--sug-mode=ultra"))
 
 (setq-default flyspell-persistent-highlight nil)  ; only highlight the last
                                                   ; error found
