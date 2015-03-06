@@ -1,105 +1,58 @@
-(push "/opt/local/bin" exec-path)  ; used on mac by MacPorts
-(push "/usr/local/bin" exec-path)
+(require 'package)
 
-; copied from http://bytes.inso.cc/2011/08/13/auto-installing-packages-in-emacs-with-elpa-and-el-get/
-(defun eval-url (url)
-  (let ((buffer (url-retrieve-synchronously url)))
-  (save-excursion
-    (set-buffer buffer)
-    (goto-char (point-min))
-    (re-search-forward "^$" nil 'move)
-    (eval-region (point) (point-max))
-    (kill-buffer (current-buffer)))))
+(setq package-archives '(("marmalade" . "http://marmalade-repo.org/packages/")
+                         ; ("gnu" . "http://elpa.gnu.org/packages/")
+                         ; ("melpa-stable" . "http://stable.melpa.org/packages/")
+                         ))
 
-(defun install-elpa ()
-  (eval-url "http://tromey.com/elpa/package-install.el"))
+(package-initialize)
 
-; Load ELPA
-(if (require 'package nil t)
-    (progn
-      ;; Emacs 24+ includes ELPA, but requires some extra setup
-      ;; to use the (better) tromey repo
-      (setq package-archives
-            (cons '("marmalade" . "http://marmalade-repo.org/packages/")
-                  (cons '("tromey" . "http://tromey.com/elpa/")
-                        package-archives)))
-      (package-initialize))
-  (install-elpa))
+(when (not package-archive-contents)
+  (package-refresh-contents))
 
-; Load el-get
-(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+(defvar packages '
+  (graphviz-dot-mode  ; graphviz Dot language
+   zenburn-theme
+   auto-complete      ; complete as you type with overlays
+   undo-tree          ; treat undo history as a tree
 
-(defun install-el-get ()
-  (eval-url
-   "https://github.com/dimitri/el-get/raw/master/el-get-install.el"))
-(unless (require 'el-get nil t)
-  (install-el-get))
 
-; extra recipes unknown to el-get (yet)
-(setq el-get-sources
-  '((:name zenburn-theme :type elpa)
-    (:name solarized-theme :type elpa)
-    (:name auto-complete :type elpa)
-    (:name minibuf-isearch
-	   :description "incremental search on minibuffer history"
-	   :type http
-	   :url "http://www.sodan.org/~knagano/emacs/minibuf-isearch/minibuf-isearch.el"
-     :features minibuf-isearch)))
+   ; dot-mode					 ; like ctrl+. in vi (repeat last cmd)
+	 ; switch-window		 ; takes over C-x o
+	 ; redo+
+	 ; minibuf-isearch - still need?
 
-(setq my-el-get-packages
-      (append
-       '(el-get                    ; el-get is self-hosting
-         dot-mode                  ; like ctrl+. in vi (repeat last cmd)
-         switch-window             ; takes over C-x o
-         ; themes
-         zenburn-theme
-         solarized-theme
-         ; need to understand how auto-complete interacts with dabbrev
-         auto-complete           ; complete as you type with overlays
-         graphviz-dot-mode         ; graphviz Dot language
-         ; http://www.emacswiki.org/emacs/UndoTree might be better than Redo
-         redo+                     ; Redo/undo system for Emacs
-      	 ; currently broken (does not compile)?  (2013-10-30)
-         ; magit                     ; git support
-         minibuf-isearch           ; incremental search on minibuffer history
-         goto-last-change          ; move pointer back to last change
-         ; color-theme ;; not using anymore?
-         ; WTF is this?
-         ; emacs-goodies-el					 ; misc emacs add-ons
+   ; currently broken (does not compile)?	 (2013-10-30)
+   ; magit										 ; git support
+	 ; color-theme ;; not using anymore?
+	 ; WTF is this?
+	 ; emacs-goodies-el					 ; misc emacs add-ons
 
-         ;; Ruby stuff which I currently have no use for
-         ;; inf-ruby									; inferior ruby mode
-         ;; ruby-compilation					; run ruby process in compilation buffer
-         ;; ;; Rinari, textmate, ECB have all been mentioned as being useful
-         ;; ;; for Ruby/Rails. They all are heavyweight; textmate is the thinnest
-	       ;; ;; of them and provides all of the functionality I need at the moment.
-         ;; textmate
-         ;; ;;; if rinari is ever turned on, nxhtml should be reinstalled as it
-         ;; ;;; seems to do things differently based on rinari's presense
-         ;; ; rinari									; ruby IDE
-         ;; ; ecb											; emacs code browser
+	 ;; Ruby stuff which I currently have no use for
+	 ;; inf-ruby									; inferior ruby mode
+	 ;; ruby-compilation					; run ruby process in compilation buffer
+	 ;; ;; Rinari, textmate, ECB have all been mentioned as being useful
+	 ;; ;; for Ruby/Rails. They all are heavyweight; textmate is the thinnest
+	 ;; ;; of them and provides all of the functionality I need at the moment.
+	 ;; textmate
+	 ;; ;;; if rinari is ever turned on, nxhtml should be reinstalled as it
+	 ;; ;;; seems to do things differently based on rinari's presense
+	 ;; ; rinari									; ruby IDE
+	 ;; ; ecb											; emacs code browser
 
-	       ;; ; http://rinari.rubyforge.org/Rhtml-Setup.html#Rhtml-Setup
-	       ;; ; says that nxhtml is better than rhtml
-         ;; nxhtml										; provides Mumamo among other HTML utils
-         ;; ; rhtml-mode							; major mode for RHTML (.html.erb) files
-	       ;; yaml-mode
-         ;; ; psvn										; svn-status
-         ;; ; yasnippet								; textmate-like snippet mode
-         ;; ;; think about how to integrate it with google-compile?
-         ;; ; mode-compile								 ; mode-specific compile support
-	       ;; rvm
-         )
-       (mapcar 'el-get-source-name el-get-sources)))
+	 ;; ; http://rinari.rubyforge.org/Rhtml-Setup.html#Rhtml-Setup
+	 ;; ; says that nxhtml is better than rhtml
+	 ;; nxhtml										; provides Mumamo among other HTML utils
+	 ;; ; rhtml-mode							; major mode for RHTML (.html.erb) files
+	 ;; yaml-mode
+	 ;; ; psvn										; svn-status
+	 ;; ; yasnippet								; textmate-like snippet mode
+	 ;; ;; think about how to integrate it with google-compile?
+	 ;; ; mode-compile								 ; mode-specific compile support
+	 ;; rvm
+   )
+  "Libraries that should be installed by default.")
 
-; TODO: These take too long, make them on demand somehow
-(defun ak-update-all()
-  (interactive)
-  (el-get-emacswiki-refresh "~/.emacs.d/el-get/el-get/recipes/emacswiki/" t)
-  (package-refresh-contents)  ; elpa refresh
-  (el-get-update-all)) ; <- does not appear to be smart, don't run it every time
-
-(defun ak-el-get-sync()
-  (el-get 'sync my-el-get-packages)
-  (el-get 'wait))
-(ak-el-get-sync)
+(dolist (package packages)
+  (when (not (package-installed-p package))
+    (package-install package)))

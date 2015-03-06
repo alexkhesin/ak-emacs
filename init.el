@@ -56,6 +56,7 @@
   ; don't know what method of setting fonts is right
   (setq default-frame-alist (append default-frame-alist '((font . "7x13")))))
 ; ---> look into http://www.handcoding.com/archives/2006/03/30/bitstream-vera-sans-mono-is-a-sweet-programming-font/
+; also https://github.com/adobe-fonts/source-code-pro
 
 ; see https://github.com/bbatsov/zenburn-emacs/issues/89
 ; and http://www.emacswiki.org/emacs/ELPA#toc4
@@ -172,8 +173,7 @@
 (setq ibuffer-default-sorting-mode 'filename/process)
 
 (require 'savehist)
-(savehist-load)                         ; save minubuffers history
-                                        ; not sure if needed in emacs 24
+(savehist-mode)                         ; save minubuffers history
 ; (eval-after-load 'rinari
 ;  ; run something like
 ;  ;   ctags-exuberant -a -e -f TAGS --tag-relative -R app lib vendor
@@ -201,15 +201,24 @@
 (setq recentf-max-menu-items 60)
 
 ; turn on which-func, but do not show it in the mode-line (only in title bar)
-(which-func-mode t)
-(delete (assoc 'which-func-mode mode-line-format) mode-line-format)
+(which-function-mode t)
+(delete (assoc 'which-function-mode mode-line-format) mode-line-format)
 
 ; Spell checking
+; -----> hunspell does not work well yet; emacs 24.4 is supposed to make better
+;;   sudo apt-get install hunspell hunspell-en-us
+;;   sudo port install hunspell hunspell-dict-en_US
+;(setq-default ispell-program-name "hunspell")
+;(setq ispell-really-hunspell t)
+;(setq ispell-dictionary "american")
+
+; aspell
 ;; to install on a Mac:
 ;;   sudo port install aspell aspell-dict-en
 (setq-default ispell-program-name "aspell")
-; make ipsell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
+; make aspell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
 (setq-default ispell-extra-args '("--sug-mode=ultra"))
+
 (setq-default flyspell-persistent-highlight nil)  ; only highlight the last
                                                   ; error found
 (setq-default flyspell-issue-welcome-flag nil)
@@ -290,7 +299,9 @@ point."
           (setq compilation-scroll-output t)
           (turn-on-auto-fill)                       ; automatic line breaking
           (flyspell-prog-mode)
+          (subword-mode 1)
           (ak-fix-flyspell-keymap)
+          (local-set-key [C-f10]      'compile)
           (local-set-key [tab]       'ak-indent-or-expand)
           (local-set-key "\M-p"      'textmate-goto-file)
           (local-set-key (kbd "RET") 'newline-and-indent)
