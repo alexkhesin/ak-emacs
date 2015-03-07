@@ -205,19 +205,18 @@
 (delete (assoc 'which-function-mode mode-line-format) mode-line-format)
 
 ; Spell checking
-; -----> hunspell does not work well yet; emacs 24.4 is supposed to make better
 ;;   sudo apt-get install hunspell hunspell-en-us
 ;;   sudo port install hunspell hunspell-dict-en_US
-(setq-default ispell-program-name "hunspell")
+(setq-default ispell-program-name (executable-find "hunspell"))
 (setq ispell-really-hunspell t)
 (setq ispell-dictionary "american")
 
 ; aspell
 ;; to install on a Mac:
 ;;   sudo port install aspell aspell-dict-en
-;(setq-default ispell-program-name "aspell")
+; (setq-default ispell-program-name "aspell")
 ; make aspell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
-;(setq-default ispell-extra-args '("--sug-mode=ultra"))
+; (setq-default ispell-extra-args '("--sug-mode=ultra"))
 
 (setq-default flyspell-persistent-highlight nil)  ; only highlight the last
                                                   ; error found
