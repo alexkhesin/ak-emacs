@@ -15,6 +15,7 @@
    zenburn-theme
    auto-complete        ; complete as you type with overlays
    undo-tree            ; treat undo history as a tree
+   org-bullets
    auto-package-update  ; automatically update ELPA packages on startup
 
 

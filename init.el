@@ -20,6 +20,61 @@
 (blink-cursor-mode t)
 (setq compilation-ask-about-save nil)  ; save all buffers before compiling
 
+; --------------- orgmode
+(setq org-agenda-files '("~/orgmode"))
+(setq org-directory '("~/orgmode"))
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-switchb)
+(setq org-hide-leading-stars t)
+(setq org-pretty-entities t)
+(setq org-hide-emphasis-markers t)
+(setq org-support-shift-select t)
+;; from https://zzamboni.org/post/beautifying-org-mode-in-emacs/
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+(let* ((sans-serif-font
+        (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+              ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+              ((x-list-fonts "Verdana")         '(:font "Verdana"))
+              ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+              (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+       (base-font-color
+        (face-foreground 'default nil 'default))
+       (headline
+        `(:inherit default :weight bold :foreground ,base-font-color)))
+  ; explanation of ,@: http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
+  (custom-theme-set-faces
+   'user
+   `(org-level-8 ((t (,@headline ,@sans-serif-font))))
+   `(org-level-7 ((t (,@headline ,@sans-serif-font))))
+   `(org-level-6 ((t (,@headline ,@sans-serif-font))))
+   `(org-level-5 ((t (,@headline ,@sans-serif-font))))
+   `(org-level-4 ((t (,@headline ,@sans-serif-font :height 1.1))))
+   `(org-level-3 ((t (,@headline ,@sans-serif-font :height 1.2))))
+   `(org-level-2 ((t (,@headline ,@sans-serif-font :height 1.3))))
+   `(org-level-1 ((t (,@headline ,@sans-serif-font :height 1.4))))
+   `(org-document-title ((t (,@headline ,@sans-serif-font
+                                        :height 1.5 :underline nil))))
+   `(variable-pitch ((t (,@sans-serif-font :height 1.0 :weight light))))
+   '(org-table                 ((t (:inherit fixed-pitch))))
+   '(org-block                 ((t (:inherit fixed-pitch))))
+   '(org-document-info         ((t (:foreground "dark orange"))))
+   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   '(org-link                  ((t (:foreground "royal blue" :underline t))))
+   '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-property-value        ((t (:inherit fixed-pitch))) t)
+   '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+   '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))))
+(require 'org-bullets)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (org-bullets-mode 1)
+            (variable-pitch-mode)
+            (visual-line-mode)))
+
 ; --------------- autosave
 
 ; Put autosave files (ie #foo#) in one place, instead scattered of all over the
@@ -64,6 +119,8 @@
 ; (load-theme 'solarized-dark t)
 
 (if ak-mac-os-x
+    (set-face-attribute 'default nil
+                        :family "Menlo" :height 110 :weight 'normal)
     ; If you want a mac-native behavior (Command-c/v/x for copy-paste, uncomment
     ; (cua-selection-mode t) below, and kill the progn that follows.  Emacs 24
     ; already defaults to M-c/v for copy/paste on a Mac, and cua-selection-mode
