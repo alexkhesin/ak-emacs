@@ -2,6 +2,13 @@
 ; (all testing is done with emacs 24)
 (if (or (< emacs-major-version 24) (string-match "XEmacs" emacs-version))
     (error "Requires GNU emacs 24 or above"))
+
+; load local customizations if any
+(defun ak-load-local-library-if-present (file)
+  (let ((fname (expand-file-name file user-emacs-directory)))
+    (when (file-exists-p fname) (load-file fname))))
+(ak-load-local-library-if-present "local.el")
+
 (defun ak-load-source-controlled-library (file)
   (load-file (expand-file-name file (concat user-emacs-directory "ak-emacs"))))
 (ak-load-source-controlled-library "package-installer.el")
@@ -43,24 +50,25 @@
   ; on mac, there's always a menu bar drown, don't have it empty
   (menu-bar-mode -1))                     ; C-mouse-3 to access menu
 
-(when ak-linux
-  ; emacs 25 changes AVERAGE_WEIGHT part of 7x13 font spec from 70 to 80 making
-  ; bold characters take more space. Probably a bug in emacs. Remove bold from
-  ; all faces for now.
-  (add-hook 'after-init-hook
-            '(lambda () (mapc (lambda (face)
-                                (set-face-attribute face nil :weight 'normal)
-                                )
-                              (face-list))))
-
-  (setq default-frame-alist (append default-frame-alist '((font . "7x13"))))
-  ; set-face-font should have the same effect but it renders slightly
-  ; differently for some reason
-  ; (set-face-font 'default "7x13")
-                                        ;
-  ;  ---> look into http://www.handcoding.com/archives/2006/03/30/bitstream-vera-sans-mono-is-a-sweet-programming-font/
-; also https://github.com/adobe-fonts/source-code-pro
-)
+;; set-face-attribute does not work when called directly in daemon mode.  setq
+;; default-frame-list works but does not let me modify the mode line.  This more
+;; complicated solution lets me have everything.  See https://superuser.com/questions/579349/how-to-make-emacsclient-uses-differnt-themes-in-terminal-and-x-window
+(defun ak-set-font ()
+  (when (and ak-linux window-system)
+    (set-face-attribute 'default nil :font "Ubuntu Mono:pixelsize=15")
+    (set-face-attribute 'mode-line nil :font "Ubuntu Mono:pixelsize=13")))
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              '(lambda (frame) (select-frame frame) (ak-set-font)))
+  (ak-set-font))
+;; other fonts: used to use "7x13" with old display, but that needed
+;;                (set-face-attribute face nil :weight 'normal)
+;; because emacs 25 changes AVERAGE_WEIGHT part of 7x13 font spec from 70 to 80
+;; making bold characters take more space. Probably a bug in emacs. That removed
+;; bold from all faces.
+;;
+;; also http://www.handcoding.com/archives/2006/03/30/bitstream-vera-sans-mono-is-a-sweet-programming-font/
+;; and https://github.com/adobe-fonts/source-code-pro
 
 (when ak-mac-os-x
   ; If you want a mac-native behavior (Command-c/v/x for copy-paste, uncomment
@@ -115,6 +123,7 @@
 ;; (textmate-mode 0)
 ; --------------- customize various modes
 (global-undo-tree-mode)
+(diminish 'undo-tree-mode)
 (global-set-key [(control shift z)] 'redo)
 ; (global-set-key "\C-?" 'redo)  ; control shift _, but cannot make it work
 (setq
@@ -160,6 +169,14 @@
 ;; (setq ido-show-dot-for-dired t)
 ; ibuffer config
 ; (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+
+;; better IDO, also ivy-xref better xref?  But need to spend time configuring it
+;; see https://www.reddit.com/r/emacs/comments/51lqn9/helm_or_ivy/
+;; and https://github.com/purcell/emacs.d/blob/master/lisp/init-ivy.el
+; (require 'ivy)
+; (ivy-mode 1)
+; (setq xref-show-xrefs-function 'ivy-xref-show-xrefs)
+
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (setq ibuffer-default-sorting-mode 'filename/process)
 (require 'savehist)
@@ -187,19 +204,22 @@
 ; turn on which-func, but do not show it in the mode-line (only in title bar)
 (which-function-mode t)
 (delete (assoc 'which-function-mode mode-line-format) mode-line-format)
+
 ; Spell checking
-; -----> hunspell does not work well yet; emacs 24.4 is supposed to make better
+; -----> hunspell is broken on glinux, see b/8173273
 ;;   sudo apt-get install hunspell hunspell-en-us
 ;;   sudo port install hunspell hunspell-dict-en_US
-(setq-default ispell-program-name "hunspell")
-(setq ispell-really-hunspell t)
-(setq ispell-dictionary "american")
+;(setq-default ispell-program-name "hunspell")
+;(setq ispell-really-hunspell t)
+;(setq ispell-dictionary "american")
+
 ; aspell
 ;; to install on a Mac:
 ;;   sudo port install aspell aspell-dict-en
-;(setq-default ispell-program-name "aspell")
+(setq-default ispell-program-name "aspell")
 ; make aspell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
-;(setq-default ispell-extra-args '("--sug-mode=ultra"))
+(setq-default ispell-extra-args '("--sug-mode=ultra"))
+
 (setq-default flyspell-persistent-highlight nil)  ; only highlight the last
                                                   ; error found
 (setq-default flyspell-issue-welcome-flag nil)
@@ -212,6 +232,7 @@
 (defun ak-flyspell-mode ()
   (flyspell-mode 1)
   (ak-fix-flyspell-keymap))
+
 ; Enable tab-completion
 (defun ak-indent-or-expand (arg)
   "Either indent according to mode, or expand the word preceding
@@ -220,24 +241,27 @@ point."
   (if (and
        (or (bobp) (= ?w (char-syntax (char-before))))
        (or (eobp) (not (= ?w (char-syntax (char-after))))))
-      (dabbrev-expand arg)
+      ; (dabbrev-expand arg)
+      (company-indent-or-complete-common)
 ; hippie-emacs is broken at least in the multi-tty branch I am using at
 ; the moment in that it does not cycle through completion candidates
 ; on multiple applications (TAB key presses)
 ;      (hippie-expand arg)
 ; see also http://www.emacswiki.org/emacs/TabCompletion and auto-complete mode
     (indent-according-to-mode)))
-(setq hippie-expand-try-functions-list
-      '(try-complete-file-name-partially
-        try-complete-file-name
-        try-expand-all-abbrevs
-;       try-expand-list
-        try-expand-line
-        try-expand-dabbrev
-        try-expand-dabbrev-all-buffers
-        try-expand-dabbrev-from-kill
-        try-complete-lisp-symbol-partially
-        try-complete-lisp-symbol))
+
+;; (setq hippie-expand-try-functions-list
+;;       '(try-complete-file-name-partially
+;;         try-complete-file-name
+;;         try-expand-all-abbrevs
+;; ;       try-expand-list
+;;         try-expand-line
+;;         try-expand-dabbrev
+;;         try-expand-dabbrev-all-buffers
+;;         try-expand-dabbrev-from-kill
+;;         try-complete-lisp-symbol-partially
+;;         try-complete-lisp-symbol))
+
 (add-hook 'text-mode-hook       'ak-flyspell-mode)
 (add-hook 'c-mode-common-hook
           '(lambda ()
@@ -252,6 +276,60 @@ point."
 (add-hook 'css-mode-hook
           '(lambda () (setq css-indent-offset 2)))
 
+(require 'company)
+(define-key company-active-map (kbd "<tab>")
+  'company-complete-common-or-cycle)
+(define-key company-active-map (kbd "TAB")
+  'company-complete-common-or-cycle)
+; capf (completion-at-point-functions) are usually based on tags or LSP, which
+; invariably miss some words in the buffer, especially in presence of
+; syntactical errors.  Replace company-capf with a single backend that combines
+; company-capf and company-dabbrev-code.  Maybe company-dabbrev would be more
+; useful?  Evaluate after using it for a while (but then see
+; https://github.com/company-mode/company-mode/issues/60)
+;
+; another way to achieve this; have not played with it much
+;  https://emacs.stackexchange.com/questions/30690/code-auto-completion-with-ivy
+(setf (nth (cl-position 'company-capf company-backends) company-backends)
+      '(company-capf company-dabbrev-code))
+; Delete dabbrev matches that are the same as capf.  We know capf matches
+; include arguments (e.g. "foo(var1)" for capf vs just "foo" for dabbrev);
+; we also know the lists are sorted. So eliminate elements that follow their
+; prefixes and that have '(' as the very next character after the prefix
+(defun ak-delete-dabbrev-dups (list)
+  (let ((tail list) last)
+    (while (cdr tail)
+      (let ((first (car tail)) (second (cadr tail)) changed)
+        (if (string-prefix-p first second)
+            (if (string= first second)
+                (let ((f (seq-filter
+                          (lambda (el)
+                            (not (eq 'company-dabbrev-code
+                                     (get-text-property 0 'company-backend el))))
+                          (list first second))))
+                  ; will need to adjust code below if this ever stops being true
+                  (cl-assert (equal 1 (length f)))
+                  (setcar tail (elt f 0))
+                  (setcdr tail (cddr tail))
+                  (setq changed t))
+              ; 40 is ?( but the literal paren confuses the editor
+              (if (eq 40 (elt second (length first)))
+                  (progn
+                    (setcar tail second)
+                    (setcdr tail (cddr tail))
+                    (setq changed t)))))
+        (if (not changed)
+            (setq last tail
+                  tail (cdr tail)))))
+    list))
+(add-to-list 'company-transformers 'ak-delete-dabbrev-dups)
+; and now sort by relevance
+(add-to-list 'company-transformers 'company-sort-by-occurrence)
+
+(diminish 'company-mode)
+(diminish 'abbrev-mode)  ; no idea who turns it on
+(diminish 'eldoc-mode)    ; no idea who turns it on
+
 ;; google-maybe-delete-trailing-whitespace does this better
 ;; (add-hook 'before-save-hook
 ;;           '(lambda () (when (derived-mode-p 'prog-mode)
@@ -265,16 +343,22 @@ point."
              (setq fill-column 80)
              (setq compilation-scroll-output t)
              (turn-on-auto-fill)                       ; automatic line breaking
+             (diminish 'auto-fill-function)
              (flyspell-prog-mode)
              (subword-mode 1)
              (ak-fix-flyspell-keymap)
              (local-set-key [C-f10]      'compile)
-             (local-set-key [tab]       'ak-indent-or-expand)
+             (company-mode 1)
+             (local-set-key [tab]       'company-indent-or-complete-common)
              (local-set-key "\M-p"      'textmate-goto-file)
              (local-set-key (kbd "RET") 'newline-and-indent)
              (local-set-key [M-down]    'next-error)
              (local-set-key [M-up]      '(lambda () (interactive)
                                            (next-error -1)))))
+;; cc-mode does not derive from prog-mode anymore, see
+;; https://sourceforge.net/p/cc-mode/mailman/message/35449588/
+; (add-hook 'c-mode-common-hook (lambda () (run-hooks 'prog-mode-hook)))
+
 ; allow bringing up a search-and-replace using the history mechanism in
 ; MiniBuffer)
 (setq enable-recursive-minibuffers t)
@@ -308,20 +392,21 @@ point."
   (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
         ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
         (t (self-insert-command (or arg 1)))))
+(setq ak-frame-width 80)
 (defun ak-single ()
   (interactive)
   (delete-other-windows)
-  (set-frame-width (selected-frame) 80))
+  (set-frame-width (selected-frame) ak-frame-width))
 (defun ak-double ()
   (interactive)
   (delete-other-windows)
-  (set-frame-width (selected-frame) 163)
+  (set-frame-width (selected-frame) (+ 3 (* 2 ak-frame-width)))
   (split-window-horizontally)
   (balance-windows))
 (defun ak-triple ()
   (interactive)
   (delete-other-windows)
-  (set-frame-width (selected-frame) 246)
+  (set-frame-width (selected-frame) (+ 6 (* 3 ak-frame-width)))
   (split-window-horizontally)
   (split-window-horizontally)
   (balance-windows))
@@ -348,11 +433,6 @@ point."
 (winner-mode 1)   ; C-c + <left/right> to get back to previous window layout
 (windmove-default-keybindings 'meta) ; navigate windows with M-<arrows>
 (setq windmove-wrap-around t)
-; load local customizations if any
-(defun ak-load-local-library-if-present (file)
-  (let ((fname (expand-file-name file user-emacs-directory)))
-    (when (file-exists-p fname) (load-file fname))))
-(ak-load-local-library-if-present "local.el")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
