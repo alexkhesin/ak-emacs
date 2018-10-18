@@ -1,23 +1,29 @@
 (require 'package)
 
-(setq package-archives '(("marmalade" . "http://marmalade-repo.org/packages/")
-                         ("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa-stable" . "http://stable.melpa.org/packages/")
-                         ))
+(setq package-archives (nconc package-archives
+      '(("marmalade" . "https://marmalade-repo.org/packages/")
+        ("gnu" . "https://elpa.gnu.org/packages/")
+        ; ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")
+        )))
 
 (package-initialize)
 
 (when (not package-archive-contents)
   (package-refresh-contents))
 
-(defvar packages '
-  (graphviz-dot-mode    ; graphviz Dot language
-   zenburn-theme
-   auto-complete        ; complete as you type with overlays
-   undo-tree            ; treat undo history as a tree
-   org-bullets
-   auto-package-update  ; automatically update ELPA packages on startup
-
+(setq package-selected-packages (nconc package-selected-packages
+  '(graphviz-dot-mode    ; graphviz Dot language
+    zenburn-theme
+    ; auto-complete        ; complete as you type with overlays
+    undo-tree            ; treat undo history as a tree
+    auto-package-update  ; automatically update ELPA packages on startup
+    ; ivy-xref
+    company-quickhelp
+    org-bullets
+ )))
+(package-install-selected-packages)
+(auto-package-update-maybe)
 
    ; dot-mode					 ; like ctrl+. in vi (repeat last cmd)
 	 ; switch-window		 ; takes over C-x o
@@ -52,11 +58,4 @@
 	 ;; ;; think about how to integrate it with google-compile?
 	 ;; ; mode-compile								 ; mode-specific compile support
 	 ;; rvm
-   )
-  "Libraries that should be installed by default.")
 
-(dolist (package packages)
-  (when (not (package-installed-p package))
-    (package-install package)))
-
-(auto-package-update-maybe)

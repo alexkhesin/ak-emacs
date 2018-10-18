@@ -16,9 +16,12 @@ fi
 if [ "$(uname -s)" = "Darwin" ]; then
   emacs=/Applications/Emacs.app/Contents/MacOS/Emacs
   emacsclient=/Applications/Emacs.app/Contents/MacOS/bin/emacsclient
+elif [ -e /usr/bin/google-emacs ]; then
+   emacs=/usr/bin/google-emacs
+   emacsclient=/usr/bin/emacsclient.google-emacs
 elif [ -e /usr/local/bin/emacs ]; then
-  emacs=/usr/local/bin/emacs
-  emacsclient=/usr/local/bin/emacsclient
+   emacs=/usr/local/bin/emacs
+   emacsclient=/usr/local/bin/emacsclient
 else
   emacs=/usr/bin/emacs
   emacsclient=/usr/bin/emacsclient
