@@ -1,7 +1,6 @@
 ; No effort is made to preserve compatibility with older versions
-; (all testing is done with emacs 24)
-(if (or (< emacs-major-version 24) (string-match "XEmacs" emacs-version))
-    (error "Requires GNU emacs 24 or above"))
+(if (or (< emacs-major-version 26) (string-match "XEmacs" emacs-version))
+    (error "Requires GNU emacs 26 or above"))
 
 ; load local customizations if any
 (defun ak-load-local-library-if-present (file)
