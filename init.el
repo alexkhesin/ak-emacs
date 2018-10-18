@@ -18,8 +18,9 @@
 (defconst ak-mac-os-x (string-match "apple-darwin" system-configuration))
 (defconst ak-linux (string-match "linux-gnu" system-configuration))
 
-; --------------- turn silly things off
+(require 'diminish)
 
+; --------------- turn silly things off
 (fset 'yes-or-no-p 'y-or-n-p)          ; no "yes" / "no" prompts
 (setq inhibit-startup-message t)
 (blink-cursor-mode t)
@@ -39,46 +40,48 @@
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-(let* ((sans-serif-font
-        (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-              ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-              ((x-list-fonts "Verdana")         '(:font "Verdana"))
-              ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-              (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-       (base-font-color
-        (face-foreground 'default nil 'default))
-       (headline
-        `(:inherit default :weight bold :foreground ,base-font-color)))
-  ; explanation of ,@: http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
-  (custom-theme-set-faces
-   'user
-   `(org-level-8 ((t (,@headline ,@sans-serif-font))))
-   `(org-level-7 ((t (,@headline ,@sans-serif-font))))
-   `(org-level-6 ((t (,@headline ,@sans-serif-font))))
-   `(org-level-5 ((t (,@headline ,@sans-serif-font))))
-   `(org-level-4 ((t (,@headline ,@sans-serif-font :height 1.1))))
-   `(org-level-3 ((t (,@headline ,@sans-serif-font :height 1.2))))
-   `(org-level-2 ((t (,@headline ,@sans-serif-font :height 1.3))))
-   `(org-level-1 ((t (,@headline ,@sans-serif-font :height 1.4))))
-   `(org-document-title ((t (,@headline ,@sans-serif-font
-                                        :height 1.5 :underline nil))))
-   `(variable-pitch ((t (,@sans-serif-font :height 1.0 :weight light))))
-   '(org-table                 ((t (:inherit fixed-pitch))))
-   '(org-block                 ((t (:inherit fixed-pitch))))
-   '(org-document-info         ((t (:foreground "dark orange"))))
-   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-   '(org-link                  ((t (:foreground "royal blue" :underline t))))
-   '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-property-value        ((t (:inherit fixed-pitch))) t)
-   '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-   '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))))
 (require 'org-bullets)
 (add-hook 'org-mode-hook
           (lambda ()
             (org-bullets-mode 1)
             (variable-pitch-mode)
             (visual-line-mode)))
+(defun ak-org-theme-customize ()
+  (let* ((sans-serif-font
+          (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+                ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+                ((x-list-fonts "Verdana")         '(:font "Verdana"))
+                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+         (base-font-color
+          (face-foreground 'default nil 'default))
+         (headline
+          `(:inherit default :weight bold :foreground ,base-font-color)))
+    ; explanation of ,@: http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
+    (custom-theme-set-faces
+     'user
+     `(org-level-8 ((t (,@headline ,@sans-serif-font))))
+     `(org-level-7 ((t (,@headline ,@sans-serif-font))))
+     `(org-level-6 ((t (,@headline ,@sans-serif-font))))
+     `(org-level-5 ((t (,@headline ,@sans-serif-font))))
+     `(org-level-4 ((t (,@headline ,@sans-serif-font :height 1.1))))
+     `(org-level-3 ((t (,@headline ,@sans-serif-font :height 1.2))))
+     `(org-level-2 ((t (,@headline ,@sans-serif-font :height 1.3))))
+     `(org-level-1 ((t (,@headline ,@sans-serif-font :height 1.4))))
+     `(org-document-title ((t (,@headline ,@sans-serif-font
+                                          :height 1.5 :underline nil))))
+     `(variable-pitch ((t (,@sans-serif-font :height 1.0 :weight light))))
+     '(org-table                 ((t (:inherit fixed-pitch))))
+     '(org-block                 ((t (:inherit fixed-pitch))))
+     '(org-document-info         ((t (:foreground "dark orange"))))
+     '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+     '(org-link                  ((t (:foreground "royal blue" :underline t))))
+     '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+     '(org-property-value        ((t (:inherit fixed-pitch))) t)
+     '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+     '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+     '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))
+    )))
 
 ; --------------- autosave
 
@@ -103,7 +106,6 @@
 (scroll-bar-mode -1)                      ; no scroll bars
 (tool-bar-mode -1)                        ; no tool bar with icons
 (show-paren-mode 1)                       ; highlight matching parens
-(cua-mode t)
 (unless ak-mac-os-x
   ; on mac, there's always a menu bar drown, don't have it empty
   (menu-bar-mode -1))                     ; C-mouse-3 to access menu
@@ -136,17 +138,27 @@
   ; already defaults to M-c/v for copy/paste on a Mac, and cua-selection-mode
   ; is only needed for rectangle support (and delete-selection-mode, but that
   ; can be turned on separately with (delete-selection-mode 1).
-  ;; (cua-selection-mode t)
+
+  ;; !!! do not try it because ssh-from-work-via-X11 emacs will still use X11,
+  ; i.e. not mac-native interpretations of Optoion and Command keys. Unless can
+  ; change that too.
+  ; (cua-selection-mode t)
   ;
   ; This gives more familiar bindings to those who cannot get Linux bindings
   ; out of their muscle memory, even when using emacs on a Mac.
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier nil)
 )
+(cua-mode t)
+;; need this? was added by customize on Mac (cua-mode t nil (cua-base))
 
 ; see https://github.com/bbatsov/zenburn-emacs/issues/89
 ; and http://www.emacswiki.org/emacs/ELPA#toc4
-(add-hook 'after-init-hook '(lambda () (load-theme 'zenburn t)))
+(add-hook 'after-init-hook
+          '(lambda ()
+             (load-theme 'zenburn t)
+             ; (ak-org-theme-customize)
+))
 ; (load-theme 'solarized-dark t)
 
 ;; Not planning to use Ruby at this point
@@ -282,20 +294,24 @@
 (which-function-mode t)
 (delete (assoc 'which-function-mode mode-line-format) mode-line-format)
 
-; Spell checking
-; -----> hunspell is broken on glinux, see b/8173273
-;;   sudo apt-get install hunspell hunspell-en-us
-;;   sudo port install hunspell hunspell-dict-en_US
-;(setq-default ispell-program-name (executable-find "hunspell"))
-;(setq ispell-really-hunspell t)
-;(setq ispell-dictionary "american")
+(when ak-mac-os-x
+  ; Spell checking
+  ; -----> hunspell is broken on glinux, see b/8173273
+  ;;   sudo apt-get install hunspell hunspell-en-us
+  ;;   sudo port install hunspell hunspell-dict-en_US
+  (setq-default ispell-program-name (executable-find "hunspell"))
+  (setq ispell-really-hunspell t)
+  (setq ispell-dictionary "american")
+)
 
-; aspell
-;; to install on a Mac:
-;;   sudo port install aspell aspell-dict-en
-(setq-default ispell-program-name "aspell")
-; make aspell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
-(setq-default ispell-extra-args '("--sug-mode=ultra"))
+(when ak-linux
+  ; aspell
+  ;; to install on a Mac:
+  ;;   sudo port install aspell aspell-dict-en
+  (setq-default ispell-program-name "aspell")
+  ; make aspell faster, according to http://www.emacswiki.org/emacs/InteractiveSpell
+  (setq-default ispell-extra-args '("--sug-mode=ultra"))
+)
 
 (setq-default flyspell-persistent-highlight nil)  ; only highlight the last
                                                   ; error found
@@ -534,16 +550,3 @@ point."
 (winner-mode 1)   ; C-c + <left/right> to get back to previous window layout
 (windmove-default-keybindings 'meta) ; navigate windows with M-<arrows>
 (setq windmove-wrap-around t)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ecb-options-version "2.40"))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

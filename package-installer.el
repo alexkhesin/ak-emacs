@@ -19,8 +19,10 @@
     undo-tree            ; treat undo history as a tree
     auto-package-update  ; automatically update ELPA packages on startup
     ; ivy-xref
+    company
     company-quickhelp
     org-bullets
+    diminish
  )))
 (package-install-selected-packages)
 (auto-package-update-maybe)
@@ -58,4 +60,3 @@
 	 ;; ;; think about how to integrate it with google-compile?
 	 ;; ; mode-compile								 ; mode-specific compile support
 	 ;; rvm
-
