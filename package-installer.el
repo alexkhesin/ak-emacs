@@ -23,6 +23,7 @@
     company-quickhelp
     org-bullets
     diminish
+    which-key
  )))
 (package-install-selected-packages)
 (auto-package-update-maybe)

@@ -19,6 +19,7 @@
 (defconst ak-linux (string-match "linux-gnu" system-configuration))
 
 (require 'diminish)
+(require 'which-key-mode)
 
 ; --------------- turn silly things off
 (fset 'yes-or-no-p 'y-or-n-p)          ; no "yes" / "no" prompts
@@ -44,44 +45,18 @@
 (add-hook 'org-mode-hook
           (lambda ()
             (org-bullets-mode 1)
-            (variable-pitch-mode)
-            (visual-line-mode)))
+            (variable-pitch-mode 1)
+            (visual-line-mode 1)
+            (diminish 'visual-line-mode)
+            (auto-save-visited-mode 1)
+            (diminish 'buffer-face-mode) ; did not trace where this mode comes from
+            ))
+(setq auto-save-visited-interval 1)
 (defun ak-org-theme-customize ()
-  (let* ((sans-serif-font
-          (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-                ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-                ((x-list-fonts "Verdana")         '(:font "Verdana"))
-                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-         (base-font-color
-          (face-foreground 'default nil 'default))
-         (headline
-          `(:inherit default :weight bold :foreground ,base-font-color)))
-    ; explanation of ,@: http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
-    (custom-theme-set-faces
-     'user
-     `(org-level-8 ((t (,@headline ,@sans-serif-font))))
-     `(org-level-7 ((t (,@headline ,@sans-serif-font))))
-     `(org-level-6 ((t (,@headline ,@sans-serif-font))))
-     `(org-level-5 ((t (,@headline ,@sans-serif-font))))
-     `(org-level-4 ((t (,@headline ,@sans-serif-font :height 1.1))))
-     `(org-level-3 ((t (,@headline ,@sans-serif-font :height 1.2))))
-     `(org-level-2 ((t (,@headline ,@sans-serif-font :height 1.3))))
-     `(org-level-1 ((t (,@headline ,@sans-serif-font :height 1.4))))
-     `(org-document-title ((t (,@headline ,@sans-serif-font
-                                          :height 1.5 :underline nil))))
-     `(variable-pitch ((t (,@sans-serif-font :height 1.0 :weight light))))
-     '(org-table                 ((t (:inherit fixed-pitch))))
-     '(org-block                 ((t (:inherit fixed-pitch))))
-     '(org-document-info         ((t (:foreground "dark orange"))))
-     '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-     '(org-link                  ((t (:foreground "royal blue" :underline t))))
-     '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-     '(org-property-value        ((t (:inherit fixed-pitch))) t)
-     '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-     '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-     '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))
-    )))
+  (custom-theme-set-faces
+   'user
+   '(org-table                 ((t (:inherit fixed-pitch))))
+   ))
 
 ; --------------- autosave
 
@@ -157,7 +132,7 @@
 (add-hook 'after-init-hook
           '(lambda ()
              (load-theme 'zenburn t)
-             ; (ak-org-theme-customize)
+             (ak-org-theme-customize)
 ))
 ; (load-theme 'solarized-dark t)
 
@@ -318,14 +293,13 @@
 (setq-default flyspell-issue-welcome-flag nil)
 (setq-default flyspell-issue-message-flag nil)
 (setq-default flyspell-duplicate-distance 0)
-
-; rebind flyspell-auto-correct-word from C-. to C-'
-(defun ak-fix-flyspell-keymap ()
-  (define-key flyspell-mode-map [(control \.)] nil)
-  (define-key flyspell-mode-map [(control \')] 'flyspell-auto-correct-word))
-(defun ak-flyspell-mode ()
-  (flyspell-mode 1)
-  (ak-fix-flyspell-keymap))
+(add-hook
+ 'flyspell-mode-hook
+ '(lambda ()
+    (diminish 'flyspell-mode)
+    ; rebind flyspell-auto-correct-word from C-. to C-'
+    (define-key flyspell-mode-map [(control \.)] nil)
+    (define-key flyspell-mode-map [(control \')] 'flyspell-auto-correct-word)))
 
 ; Enable tab-completion
 (defun ak-indent-or-expand (arg)
@@ -356,7 +330,7 @@ point."
 ;;         try-complete-lisp-symbol-partially
 ;;         try-complete-lisp-symbol))
 
-(add-hook 'text-mode-hook       'ak-flyspell-mode)
+(add-hook 'text-mode-hook       'flyspell-mode)
 
 (setq ak-prog-mode-hooks
       (list 'c-mode-common-hook
@@ -454,7 +428,7 @@ point."
              (diminish 'auto-fill-function)
              (flyspell-prog-mode)
              (subword-mode 1)
-             (ak-fix-flyspell-keymap)
+             (diminish 'subword-mode)
              (local-set-key [C-f10]      'compile)
              (company-mode 1)
              (local-set-key [tab]       'company-indent-or-complete-common)
@@ -462,7 +436,8 @@ point."
              (local-set-key (kbd "RET") 'newline-and-indent)
              (local-set-key [M-down]    'next-error)
              (local-set-key [M-up]      '(lambda () (interactive)
-                                           (next-error -1)))))
+                                           (next-error -1)))
+             ))
 ;; cc-mode does not derive from prog-mode anymore, see
 ;; https://sourceforge.net/p/cc-mode/mailman/message/35449588/
 ; (add-hook 'c-mode-common-hook (lambda () (run-hooks 'prog-mode-hook)))
