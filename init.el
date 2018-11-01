@@ -37,6 +37,7 @@
 (setq org-pretty-entities t)
 (setq org-hide-emphasis-markers t)
 (setq org-support-shift-select t)
+(setq org-return-follows-link t)
 ;; from https://zzamboni.org/post/beautifying-org-mode-in-emacs/
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
