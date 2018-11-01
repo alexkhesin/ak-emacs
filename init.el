@@ -19,7 +19,7 @@
 (defconst ak-linux (string-match "linux-gnu" system-configuration))
 
 (require 'diminish)
-(require 'which-key-mode)
+(require 'which-key)
 
 ; --------------- turn silly things off
 (fset 'yes-or-no-p 'y-or-n-p)          ; no "yes" / "no" prompts
