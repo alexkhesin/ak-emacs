@@ -49,7 +49,6 @@
             (variable-pitch-mode 1)
             (visual-line-mode 1)
             (diminish 'visual-line-mode)
-            (auto-save-visited-mode 1)
             (diminish 'buffer-face-mode) ; did not trace where this mode comes from
             ))
 (setq auto-save-visited-interval 1)
