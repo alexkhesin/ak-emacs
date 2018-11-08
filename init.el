@@ -38,20 +38,26 @@
 (setq org-hide-emphasis-markers t)
 (setq org-support-shift-select t)
 (setq org-return-follows-link t)
+(setq real-auto-save-interval 30)
+(setq org-replace-disputed-keys t)
 ;; from https://zzamboni.org/post/beautifying-org-mode-in-emacs/
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 (require 'org-bullets)
+(require 'real-auto-save)
 (add-hook 'org-mode-hook
           (lambda ()
             (org-bullets-mode 1)
             (variable-pitch-mode 1)
             (visual-line-mode 1)
+            ; annoyingly global, use real-auto-save instead
+            ; (auto-save-visited-mode 1)
+            (real-auto-save-mode t)
+            (diminish 'real-auto-save-mode)
             (diminish 'visual-line-mode)
             (diminish 'buffer-face-mode) ; did not trace where this mode comes from
             ))
-(setq auto-save-visited-interval 1)
 (defun ak-org-theme-customize ()
   (custom-theme-set-faces
    'user

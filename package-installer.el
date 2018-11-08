@@ -24,6 +24,7 @@
     org-bullets
     diminish
     which-key
+    real-auto-save
  )))
 (package-install-selected-packages)
 (auto-package-update-maybe)
